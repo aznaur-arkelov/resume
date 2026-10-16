@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { injectPhone, buildHtml } from '../build/html.js';
+import { injectPhone, assertRealPhone, buildHtml } from '../build/html.js';
 
 const MD = [
   '# Азнаур Аркелов',
@@ -29,6 +29,14 @@ test('injectPhone не трогает остальные строки', () => {
   assert.ok(out.includes('# Азнаур Аркелов'));
   assert.ok(out.includes('## Навыки'));
   assert.equal(out.split('\n').length, MD.split('\n').length);
+});
+
+test('assertRealPhone отвергает заглушку из нулей', () => {
+  assert.throws(() => assertRealPhone('+7 000 000-00-00'), /заглушка/);
+});
+
+test('assertRealPhone пропускает настоящий номер', () => {
+  assert.doesNotThrow(() => assertRealPhone('+7 916 123-45-67'));
 });
 
 test('buildHtml подставляет содержимое и стили в шаблон', () => {

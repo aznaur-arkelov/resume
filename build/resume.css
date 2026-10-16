@@ -1,12 +1,12 @@
 @page {
   size: A4;
-  margin: 12mm 14mm;
+  margin: 10mm 14mm;
 }
 
 body {
   margin: 0;
   font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-  font-size: 8.4pt;
+  font-size: 8.6pt;
   line-height: 1.28;
   color: #1a1a1a;
 }
@@ -21,7 +21,7 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.4pt;
   border-bottom: 0.6pt solid #c8c8c8;
-  margin: 9pt 0 4pt;
+  margin: 7pt 0 4pt;
   padding-bottom: 1.5pt;
 }
 

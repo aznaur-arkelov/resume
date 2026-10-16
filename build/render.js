@@ -1,15 +1,19 @@
 import { readFileSync, writeFileSync, existsSync, rmSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { injectPhone, buildHtml } from './html.js';
+import { injectPhone, assertRealPhone, buildHtml } from './html.js';
 import { htmlToPdf } from './chrome.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 
+// RESUME_CONTACTS подменяет путь к файлу контактов (для тестов); по умолчанию — contacts.local.json
 function loadPhone() {
-  const file = join(here, 'contacts.local.json');
+  const file = process.env.RESUME_CONTACTS || join(here, 'contacts.local.json');
   if (!existsSync(file)) return null;
-  return JSON.parse(readFileSync(file, 'utf8')).phone ?? null;
+  const phone = JSON.parse(readFileSync(file, 'utf8')).phone ?? null;
+  // Репозиторий публичный: PDF с заглушкой вместо номера собирать нельзя.
+  if (phone) assertRealPhone(phone);
+  return phone;
 }
 
 const [input, output] = process.argv.slice(2);
