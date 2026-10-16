@@ -6,8 +6,8 @@
 body {
   margin: 0;
   font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-  font-size: 9.2pt;
-  line-height: 1.34;
+  font-size: 8.4pt;
+  line-height: 1.28;
   color: #1a1a1a;
 }
 
@@ -46,6 +46,11 @@ body {
 .resume a {
   color: #1a1a1a;
   text-decoration: none;
+}
+
+/* Переключатель языка (абзац из одной ссылки на .md) в печати не нужен */
+.resume p:has(> a[href$=".md"]:only-child) {
+  display: none;
 }
 
 .resume hr {

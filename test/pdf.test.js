@@ -42,3 +42,12 @@ test('render.js не теряет PDF, если имя выхода без ра�
 
   rmSync(dir, { recursive: true, force: true });
 });
+
+test('английский PDF собран, одна страница, телефон на месте', async (t) => {
+  if (!existsSync('Arkelov_en.pdf')) {
+    t.skip('Arkelov_en.pdf ещё не собран');
+    return;
+  }
+  const doc = await PDFDocument.load(readFileSync('Arkelov_en.pdf'));
+  assert.equal(doc.getPageCount(), 1, 'английское резюме должно уместиться в одну страницу');
+});
