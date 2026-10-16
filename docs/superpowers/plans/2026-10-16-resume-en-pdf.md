@@ -64,7 +64,7 @@
   "type": "module",
   "scripts": {
     "build:pdf": "node build/render.js README.en.md Arkelov_en.pdf && node build/render.js README.md Arkelov.tmp.pdf",
-    "test": "node --test test/"
+    "test": "node --test test/*.test.js"
   },
   "dependencies": {
     "marked": "^12.0.0"
@@ -165,7 +165,9 @@ export function injectPhone(markdown, phone) {
 
 export function buildHtml({ markdown, css, template }) {
   const content = marked.parse(markdown);
-  return template.replace('__CSS__', css).replace('__CONTENT__', content);
+  // Функции-заменители обязательны: строковая замена трактует $&, $' и $` как
+  // спецпоследовательности и подставляет токен обратно вместо текста.
+  return template.replace('__CSS__', () => css).replace('__CONTENT__', () => content);
 }
 ```
 
