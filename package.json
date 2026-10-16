@@ -2,6 +2,7 @@
   "name": "resume",
   "version": "1.0.0",
   "private": true,
+  "//build:pdf": "Русский Arkelov.pdf сверстан вручную и не генерируется; build:pdf рендерит его версию в Arkelov.tmp.pdf только для сравнения. Подробности: build/README.md",
   "type": "module",
   "scripts": {
     "build:pdf": "node build/render.js README.en.md Arkelov_en.pdf && node build/render.js README.md Arkelov.tmp.pdf",

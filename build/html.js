@@ -24,7 +24,11 @@ export function assertRealPhone(phone) {
   }
 }
 
-export function buildHtml({ markdown, css, template }) {
+// lang — язык документа для <html lang>; попадает в метаданные PDF.
+export function buildHtml({ markdown, css, template, lang = 'ru' }) {
   const content = marked.parse(markdown);
-  return template.replace('__CSS__', () => css).replace('__CONTENT__', () => content);
+  return template
+    .replace('__LANG__', lang)
+    .replace('__CSS__', () => css)
+    .replace('__CONTENT__', () => content);
 }

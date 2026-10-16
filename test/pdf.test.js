@@ -4,7 +4,7 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdtempSync, writeFileSync, readFileSync, existsSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { PDFDocument } from 'pdf-lib';
+import { PDFDocument, PDFName } from 'pdf-lib';
 
 // Тестовый файл контактов: сборка не должна зависеть от локального contacts.local.json
 // (его может не быть, а в нём может стоять заглушка, которую render.js отвергает).
@@ -96,6 +96,63 @@ test('README.en.md собирается в одностраничный PDF с �
   assert.ok(!text.includes('Русская версия'), 'переключатель языка не должен попасть в печать');
   assert.ok(!text.includes('English version'), 'переключатель языка не должен попасть в печать');
   assert.match(text, /PDF version/, 'ссылка на PDF-версию должна остаться');
+
+  rmSync(dir, { recursive: true, force: true });
+});
+
+test('README.en.md собирается с lang="en", а русская версия — с lang="ru"', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'resume-test-'));
+  const enPdf = join(dir, 'en.pdf');
+  const ruPdf = join(dir, 'ru.pdf');
+  const contacts = contactsFile(dir, '+7 916 123-45-67');
+
+  render('README.en.md', enPdf, contacts);
+  render('README.md', ruPdf, contacts);
+
+  const lang = async (file) =>
+    (await PDFDocument.load(readFileSync(file))).catalog.lookup(PDFName.of('Lang')).decodeText();
+  assert.equal(await lang(enPdf), 'en');
+  assert.equal(await lang(ruPdf), 'ru');
+
+  rmSync(dir, { recursive: true, force: true });
+});
+
+test('render.js падает без файла контактов и с пустым телефоном, PDF не создаётся', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'resume-test-'));
+  const mdPath = join(dir, 'fixture.md');
+  writeFileSync(mdPath, ['# Тест Тестов', '', '[a@b.com](mailto:a@b.com)'].join('\n'), 'utf8');
+
+  const cases = [
+    ['нет файла', join(dir, 'нет-такого.json'), /Нет файла контактов/],
+    ['пустой телефон', contactsFile(dir, ''), /не указан phone/],
+  ];
+  for (const [name, contacts, message] of cases) {
+    const outPath = join(dir, 'out.pdf');
+    const res = spawnSync('node', ['build/render.js', mdPath, outPath], {
+      encoding: 'utf8',
+      env: { ...process.env, RESUME_CONTACTS: contacts },
+    });
+    assert.notEqual(res.status, 0, `${name}: сборка должна завершаться ошибкой`);
+    assert.match(res.stderr, message, `${name}: ошибка должна объяснять, что делать`);
+    assert.ok(!existsSync(outPath), `${name}: PDF без телефона не должен появиться`);
+  }
+
+  rmSync(dir, { recursive: true, force: true });
+});
+
+test('Arkelov_en.pdf в репозитории соответствует README.en.md (запускайте npm run build:pdf после правок)', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'resume-test-'));
+  const freshPdf = join(dir, 'en.pdf');
+
+  render('README.en.md', freshPdf, contactsFile(dir, '+7 916 123-45-67'));
+
+  // В закоммиченном PDF настоящий номер, в свежем — тестовый, поэтому номер маскируем; пробелы выравниваем.
+  const normalize = (text) => text.replace(/\+7 \d{3} \d{3}-\d{2}-\d{2}/g, '<телефон>').replace(/\s+/g, ' ').trim();
+  assert.equal(
+    normalize(pdfText('Arkelov_en.pdf')),
+    normalize(pdfText(freshPdf)),
+    'Arkelov_en.pdf устарел: README.en.md изменён, а PDF нет. Выполните npm run build:pdf и закоммитьте Arkelov_en.pdf.',
+  );
 
   rmSync(dir, { recursive: true, force: true });
 });
