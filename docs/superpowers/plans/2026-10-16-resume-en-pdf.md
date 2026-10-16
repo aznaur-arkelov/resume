@@ -82,6 +82,7 @@ node_modules/
 build/contacts.local.json
 *.tmp.pdf
 *.tmp.html
+.superpowers/
 ```
 
 - [ ] **Step 3: Установить зависимости**
