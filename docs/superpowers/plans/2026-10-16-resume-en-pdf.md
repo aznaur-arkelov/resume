@@ -392,10 +392,15 @@ const html = buildHtml({
   template: readFileSync(join(here, 'template.html'), 'utf8'),
 });
 
-const tmpHtml = resolve(output).replace(/\.pdf$/i, '.tmp.html');
+// Имя дописывается, а не подменяется: при выводе без расширения .pdf подмена
+// была бы пустой операцией, tmpHtml совпал бы с output и готовый PDF удалился бы.
+const tmpHtml = `${resolve(output)}.tmp.html`;
 writeFileSync(tmpHtml, html, 'utf8');
-await htmlToPdf(tmpHtml, resolve(output));
-rmSync(tmpHtml, { force: true });
+try {
+  await htmlToPdf(tmpHtml, resolve(output));
+} finally {
+  rmSync(tmpHtml, { force: true });
+}
 
 console.log(`Собрано: ${output}`);
 ```
