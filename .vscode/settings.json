@@ -1,0 +1,15 @@
+{
+  "files.encoding": "utf8",
+  "[markdown]": {
+    "editor.wordWrap": "on",
+    "editor.quickSuggestions": {
+      "comments": "off",
+      "strings": "off",
+      "other": "off"
+    },
+    "editor.rulers": []
+  },
+  "markdown.preview.fontSize": 15,
+  "markdown.preview.lineHeight": 1.6,
+  "explorer.compactFolders": false
+}
