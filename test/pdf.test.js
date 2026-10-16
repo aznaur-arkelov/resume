@@ -25,3 +25,20 @@ test('render.js собирает PDF в одну страницу', async () => 
 
   rmSync(dir, { recursive: true, force: true });
 });
+
+test('render.js не теряет PDF, если имя выхода без расширения .pdf', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'resume-test-'));
+  const mdPath = join(dir, 'fixture.md');
+  const outPath = join(dir, 'out');
+
+  writeFileSync(mdPath, ['# Тест Тестов', '', '## Навыки', '', '- SQL'].join('\n'), 'utf8');
+
+  execFileSync('node', ['build/render.js', mdPath, outPath], { stdio: 'inherit' });
+
+  assert.ok(existsSync(outPath), 'выходной файл должен существовать');
+  const bytes = readFileSync(outPath);
+  assert.equal(bytes.subarray(0, 5).toString('latin1'), '%PDF-', 'выход должен быть PDF, а не HTML');
+  assert.equal((await PDFDocument.load(bytes)).getPageCount(), 1);
+
+  rmSync(dir, { recursive: true, force: true });
+});

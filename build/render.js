@@ -25,9 +25,12 @@ const html = buildHtml({
   template: readFileSync(join(here, 'template.html'), 'utf8'),
 });
 
-const tmpHtml = resolve(output).replace(/\.pdf$/i, '.tmp.html');
+const tmpHtml = `${resolve(output)}.tmp.html`;
 writeFileSync(tmpHtml, html, 'utf8');
-await htmlToPdf(tmpHtml, resolve(output));
-rmSync(tmpHtml, { force: true });
+try {
+  await htmlToPdf(tmpHtml, resolve(output));
+} finally {
+  rmSync(tmpHtml, { force: true });
+}
 
 console.log(`Собрано: ${output}`);
